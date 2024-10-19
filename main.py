@@ -1,98 +1,32 @@
-import cv2
+from flask import Flask, request, jsonify, render_template
+import tensorflow as tf
+from tensorflow.keras.models import load_model
+import numpy as np
 import os
-from mtcnn import MTCNN
-from skimage.metrics import structural_similarity as ssim
-import subprocess
 
-def upscale_frame(frame):
-    return frame  
+# Load your model
+model = load_model('/Users/devilboy/Downloads/ethos_file.h5')
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])  # Compile it
 
-def calculate_psnr(original_image, upscaled_image):
-    return cv2.PSNR(original_image, upscaled_image)
+# Create the Flask application instance
+def create_app():
+    app = Flask(__name__)
 
-def calculate_ssim(original_image, upscaled_image):
-    original_gray = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
-    upscaled_gray = cv2.cvtColor(upscaled_image, cv2.COLOR_BGR2GRAY)
-    return ssim(original_gray, upscaled_gray)
+    # Route for the homepage (frontend)
+    @app.route('/')
+    def home():
+        return render_template('index.html')  # Render the HTML template
 
-def process_video(video_path, output_folder, original_folder, upscaled_folder):
-    face_detector = MTCNN()
+    # Route for predictions (backend)
+    @app.route('/predict', methods=['POST'])
+    def predict():
+        data = request.get_json()  # Get data from the request
+        features = np.array(data['features']).reshape(1, -1)  # Reshape as needed
+        prediction = model.predict(features)  # Make prediction
+        return jsonify({'prediction': prediction.tolist()})  # Return prediction as JSON
 
-    os.makedirs(output_folder, exist_ok=True)
-    os.makedirs(original_folder, exist_ok=True)
-    os.makedirs(upscaled_folder, exist_ok=True)
+    return app
 
-    cap = cv2.VideoCapture(video_path)
-
-    if not cap.isOpened():
-        print(f"Error: Unable to open video file {video_path}")
-        return
-
-    frame_count = 0
-
-    while True:
-        ret, frame = cap.read()
-
-        if not ret:
-            break
-
-        frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
-
-        original_output_path = os.path.join(original_folder, f"original_frame_{frame_count:04d}.jpg")
-        cv2.imwrite(original_output_path, frame)
-
-        results = face_detector.detect_faces(frame)
-
-        if results is not None and len(results) > 0:
-            for box in results:
-                x1, y1, width, height = box['box']
-                x2, y2 = x1 + width, y1 + height
-                cropped_face = frame[y1:y2, x1:x2]
-
-                cropped_face_path = os.path.join(output_folder, f"cropped_face_{frame_count:04d}.jpg")
-                cv2.imwrite(cropped_face_path, cropped_face)
-
-        upscaled_frame = upscale_frame(frame)
-        upscaled_output_path = os.path.join(upscaled_folder, f"upscaled_frame_{frame_count:04d}.jpg")
-        cv2.imwrite(upscaled_output_path, upscaled_frame)
-
-        original_image = cv2.imread(original_output_path)
-        upscaled_image = cv2.imread(upscaled_output_path)
-
-        if original_image is not None and upscaled_image is not None:
-            psnr_value = calculate_psnr(original_image, upscaled_image)
-            ssim_value = calculate_ssim(original_image, upscaled_image)
-
-            print(f'Frame {frame_count}: PSNR: {psnr_value} dB, SSIM: {ssim_value}')
-        else:
-            print(f"Error: Could not read images for frame {frame_count}.")
-
-        cv2.imshow('Video', frame)
-
-        frame_count += 1
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    cap.release()
-    cv2.destroyAllWindows()
-    print(f"Processed {frame_count} frames and saved to {output_folder}, {original_folder}, and {upscaled_folder}.")
-
-def main():
-    video_path = r'C:\Users\sahil\OneDrive\Desktop\Sahil\Projects\IIT_Round2\data\vid1.mp4'
-    output_folder = r'C:\Users\sahil\OneDrive\Desktop\Sahil\Projects\IIT_Round2\cropped_faces'
-    original_folder = r'C:\Users\sahil\OneDrive\Desktop\Sahil\Projects\IIT_Round2\original_frames'
-    upscaled_folder = r'C:\Users\sahil\OneDrive\Desktop\Sahil\Projects\IIT_Round2\upscaled_frames'
-
-    print("Processing video and cropping faces...")
-    process_video(video_path, output_folder, original_folder, upscaled_folder)
-
-    print("Running recognition.py...")
-    subprocess.run(["python", "recognition.py"]) 
-    print("Running compare_matrices.py...")
-    subprocess.run(["python", "compare_matrices.py"]) 
-
-    print("All scripts have been executed.")
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    app = create_app()  # Create the app instance
+    app.run(debug=True)  # Run the application

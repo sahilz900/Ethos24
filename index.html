@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Facial Reconstruction Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">FaceReconstruction</div>
+        <ul class="nav-links">
+            <li><a href="#">Dashboard</a></li>
+            <li><a href="#">Footage</a></li>
+            <li><a href="#">Reconstructions</a></li>
+            <li><a href="#">Alerts</a></li>
+        </ul>
+        <div class="user-profile">
+            <img src="profile.png" alt="User Profile">
+            <span>John Doe</span>
+        </div>
+    </div>
+
+    <div class="header">
+        <h1>Facial Reconstruction Dashboard</h1>
+        <div class="status">
+            <span>Date: <b>2024-10-19</b></span>
+            <span>System Status: <b>Live</b></span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="panel">
+            <h2>Original CCTV Footage</h2>
+            <video id="originalVideo" controls autoplay>
+                <source src="original-footage.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+
+        <div class="split-slider" id="slider"></div>
+
+        <div class="panel">
+            <h2>Reconstructed Face</h2>
+            <video id="reconstructedVideo" controls autoplay>
+                <source src="reconstructed-footage.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+
+    <div class="facial-recognition">
+        <h3>Recognized Faces</h3>
+        <table class="face-recognition-table">
+            <thead>
+                <tr>
+                    <th>Face</th>
+                    <th>Name</th>
+                    <th>Confidence</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamic content from facial recognition -->
+                <tr>
+                    <td><img src="face1.jpg" alt="Recognized Face" class="face-thumbnail"></td>
+                    <td>Unknown1</td>
+                    <td>96%</td>
+                    <td>Verified</td>
+                </tr>
+                <tr>
+                    <td><img src="face2.jpg" alt="Recognized Face" class="face-thumbnail"></td>
+                    <td>Unknown2</td>
+                    <td>78%</td>
+                    <td>Suspect</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="kpi-section">
+        <div class="kpi">
+            <h3>System Performance</h3>
+            <p>Server Load: 72%</p>
+        </div>
+        <div class="kpi">
+            <h3>FPS</h3>
+            <p>30 FPS</p>
+        </div>
+        <div class="kpi">
+            <h3>Processing Time</h3>
+            <p>0.4s per frame</p>
+        </div>
+        <div class="kpi">
+            <h3>Critical Alerts</h3>
+            <p>2</p>
+        </div>
+    </div>
+
+    <div class="alert-bar">
+        <div class="alert critical">
+            <p>Critical Alert: Face recognized in Zone 5</p>
+            <button class="dismiss">Dismiss</button>
+        </div>
+        <div class="alert warning">
+            <p>Warning: Motion detected with blur</p>
+            <button class="dismiss">Dismiss</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
